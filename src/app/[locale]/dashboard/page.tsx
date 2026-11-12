@@ -1,6 +1,8 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { syncUser } from "@/actions/user";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboard");
@@ -12,39 +14,59 @@ export default async function DashboardPage() {
   await auth.protect();
 
   const [user, t, format] = await Promise.all([
-    currentUser(),
+    syncUser(await getLocale()),
     getTranslations("dashboard"),
     getFormatter(),
   ]);
-  const email = user?.primaryEmailAddress?.emailAddress;
+
+  // Read as the signed-in user: Row Level Security returns only their rows.
+  const { data: subscription, error } = await createServerSupabaseClient()
+    .from("subscriptions")
+    .select("status, variant_name")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(`Dashboard: ${error.message}`);
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-12">
       <h1 className="text-3xl font-semibold tracking-tight text-balance">
-        {t("welcome", { name: user?.firstName ?? email ?? "" })}
+        {t("welcome", { name: user.name ?? user.email })}
       </h1>
       <p className="mt-2 text-muted-foreground">{t("description")}</p>
 
-      <div className="mt-8 max-w-md rounded-xl border bg-card p-6">
-        <h2 className="font-medium">{t("account.title")}</h2>
-        <dl className="mt-4 space-y-3 text-sm">
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">{t("account.email")}</dt>
-            <dd className="truncate">{email}</dd>
-          </div>
-          {user && (
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border bg-card p-6">
+          <h2 className="font-medium">{t("account.title")}</h2>
+          <dl className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">{t("account.email")}</dt>
+              <dd className="truncate">{user.email}</dd>
+            </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">
                 {t("account.memberSince")}
               </dt>
               <dd>
-                {format.dateTime(new Date(user.createdAt), {
+                {format.dateTime(new Date(user.created_at), {
                   dateStyle: "long",
                 })}
               </dd>
             </div>
+          </dl>
+        </div>
+
+        <div className="rounded-xl border bg-card p-6">
+          <h2 className="font-medium">{t("plan.title")}</h2>
+          <p className="mt-4 text-2xl font-semibold tracking-tight">
+            {subscription?.variant_name ?? t("plan.free")}
+          </p>
+          {subscription && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t(`plan.status.${subscription.status}`)}
+            </p>
           )}
-        </dl>
+        </div>
       </div>
     </section>
   );

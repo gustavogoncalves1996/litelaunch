@@ -12,7 +12,10 @@ export default function DashboardLoading() {
       <span className="sr-only">{t("loading")}</span>
       <div className="h-9 w-64 rounded-md bg-muted" />
       <div className="mt-3 h-5 w-80 max-w-full rounded-md bg-muted" />
-      <div className="mt-8 h-36 max-w-md rounded-xl bg-muted" />
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="h-36 rounded-xl bg-muted" />
+        <div className="h-36 rounded-xl bg-muted" />
+      </div>
     </section>
   );
 }

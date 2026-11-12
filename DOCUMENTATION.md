@@ -2,7 +2,7 @@
 
 Boilerplate SaaS ultra-leve e modular. O objetivo é que a configuração completa demore menos de 5 minutos: todos os serviços pesados (autenticação, base de dados, pagamentos, e-mail) são geridos, e o código que fica no repositório é pouco, direto e totalmente tipado.
 
-> **Estado:** Fases 1 e 2 concluídas: estrutura base, Dark Mode, i18n, landing page e autenticação com Clerk. As secções marcadas com ⏳ são preenchidas na fase indicada. O progresso está em [PROGRESS.md](./PROGRESS.md).
+> **Estado:** Fases 1 a 3 concluídas: estrutura base, Dark Mode, i18n, landing page, autenticação com Clerk, base de dados Supabase e e-mail de boas-vindas. As secções marcadas com ⏳ são preenchidas na fase indicada. O progresso está em [PROGRESS.md](./PROGRESS.md).
 
 ## Índice
 
@@ -31,7 +31,7 @@ Boilerplate SaaS ultra-leve e modular. O objetivo é que a configuração comple
 | E-mail | Resend + React Email | E-mails transacionais em React | 3–4 |
 | Pagamentos | Lemon Squeezy | Merchant of Record (trata do IVA) | 4 |
 
-Versões instaladas na Fase 1: Next.js 16.4.6, React 19.3.1, TypeScript 6.0.3, Tailwind CSS 4.3.5, next-intl 4.14.10, next-themes 0.4.6, shadcn/ui sobre Base UI 1.9 e pnpm 12.14. Na Fase 2: `@clerk/nextjs` 7.9.25, `@clerk/ui` 1.42.4 (tema shadcn) e `@clerk/localizations` 4.24.6. As versões dos restantes serviços (Supabase, Lemon Squeezy, Resend) são fixadas na fase que os instala.
+Versões instaladas na Fase 1: Next.js 16.4.6, React 19.3.1, TypeScript 6.0.3, Tailwind CSS 4.3.5, next-intl 4.14.10, next-themes 0.4.6, shadcn/ui sobre Base UI 1.9 e pnpm 12.14. Na Fase 2: `@clerk/nextjs` 7.9.25, `@clerk/ui` 1.42.4 (tema shadcn) e `@clerk/localizations` 4.24.6. Na Fase 3: `@supabase/supabase-js` 2.119.0, `resend` 6.38.0 e `react-email` 6.11.11. A versão do Lemon Squeezy é fixada na Fase 4.
 
 ---
 
@@ -72,7 +72,8 @@ litelaunch/
 │   │   ├── api/webhooks/lemonsqueezy/   # Fase 4: webhook de faturação (fora do i18n)
 │   │   ├── globals.css                  # Tailwind e variáveis de tema do shadcn/ui
 │   │   └── icon.svg                     # Favicon
-│   ├── actions/                         # Fase 3: Server Actions
+│   ├── actions/
+│   │   └── user.ts                      # syncUser: copia o utilizador do Clerk para a base de dados
 │   ├── components/
 │   │   ├── landing/                     # hero, features, pricing, cta
 │   │   ├── ui/                          # shadcn/ui: button, dropdown-menu
@@ -83,7 +84,8 @@ litelaunch/
 │   │   ├── site-footer.tsx
 │   │   ├── site-header.tsx
 │   │   └── theme-toggle.tsx
-│   ├── emails/                          # Fase 3: templates React Email
+│   ├── emails/
+│   │   └── welcome.tsx                  # Template do e-mail de boas-vindas
 │   ├── i18n/
 │   │   ├── dictionaries/                # en.json, pt-PT.json
 │   │   ├── clerk.ts                     # Traduções da interface do Clerk por idioma
@@ -91,12 +93,18 @@ litelaunch/
 │   │   ├── request.ts                   # Locale e dicionário de cada pedido
 │   │   └── routing.ts                   # Idiomas suportados e idioma por omissão
 │   ├── lib/
-│   │   ├── site.ts                      # Nome do produto e links de navegação
+│   │   ├── supabase/
+│   │   │   ├── admin.ts                 # Chave secreta, ignora o RLS: só para escritas no servidor
+│   │   │   ├── client.ts                # useSupabase() para Client Components
+│   │   │   └── server.ts                # Em nome do utilizador, no servidor
+│   │   ├── resend.ts                    # sendEmail()
+│   │   ├── site.ts                      # Nome do produto, URL e links de navegação
 │   │   └── utils.ts                     # cn()
 │   ├── types/
+│   │   ├── database.ts                  # Tipos das tabelas do Supabase
 │   │   └── i18n.d.ts                    # Liga os tipos do next-intl aos dicionários
 │   └── proxy.ts                         # Sessão do Clerk, deteção de idioma e redirecionamentos
-├── supabase/migrations/                 # Fase 3: SQL das tabelas
+├── supabase/migrations/                 # SQL das tabelas e das políticas RLS
 ├── .env.example                         # Variáveis de ambiente a copiar para .env.local
 ├── AGENTS.md                            # Gerado pelo Next.js para agentes de IA
 ├── components.json                      # Configuração do shadcn/ui
@@ -133,7 +141,10 @@ O `AGENTS.md` é criado pelo `next dev`. Para o desativar, define `agentRules: f
 | TypeScript 6 em vez de 7 | O TypeScript 7 não inclui a API JavaScript do compilador de que o `typescript-eslint` precisa; sem ela, o ESLint e a regra `no-explicit-any` deixam de funcionar |
 | Tailwind pelo loader do Turbopack | `@tailwindcss/turbopack` em `next.config.ts`, como no `create-next-app`. Dispensa o PostCSS |
 | shadcn/ui sobre Base UI | É a base por omissão do `shadcn init`. Os componentes ficam em `src/components/ui/` e são teus para alterar |
-| `src/lib/` plano | Um ficheiro por serviço. Só passa a pasta quando o serviço precisa de clientes separados para servidor e browser |
+| `src/lib/` plano | Um ficheiro por serviço. Só passa a pasta quando o serviço precisa de clientes separados para servidor e browser, como o Supabase |
+| Utilizadores só com leitura na base de dados | As políticas RLS deixam cada utilizador ler as suas linhas e nada mais. Todas as escritas passam pelo servidor com a chave secreta. Com permissão de escrita, um utilizador podia alterar o estado da sua própria subscrição |
+| Sincronização na entrada do dashboard | O `syncUser` corre quando o utilizador abre o dashboard, em vez de depender de um webhook do Clerk. Não há endpoint nem segredo extra para configurar. Contrapartida: um utilizador apagado no Clerk continua na tabela `users` |
+| `react-email` em vez de `@react-email/components` | O segundo está marcado como descontinuado no npm. O `react-email` inclui os mesmos componentes e a função `render` |
 | Instalação manual do Next.js | O `create-next-app` recusa pastas com ficheiros que possam entrar em conflito, e a raiz já tinha a estrutura e a documentação. A configuração gerada segue a do `create-next-app` |
 | Webhooks fora de `/[locale]` | São chamados por máquinas, não têm idioma e não passam pela autenticação do utilizador |
 
@@ -164,7 +175,7 @@ pnpm dev
 
 Abre `http://localhost:3000`. És redirecionado para `/en` ou `/pt` conforme o idioma do browser.
 
-Antes do primeiro arranque, copia `.env.example` para `.env.local` e preenche as chaves do Clerk (secção 5.4). Sem a `CLERK_SECRET_KEY`, todas as páginas respondem com erro 500.
+Antes do primeiro arranque, copia `.env.example` para `.env.local` e preenche as chaves do Clerk (secção 5.4), do Supabase (5.5) e da Resend (5.6). Sem a `CLERK_SECRET_KEY`, todas as páginas respondem com erro 500.
 
 ### 5.2 Dark Mode
 
@@ -306,13 +317,112 @@ Os componentes do Clerk usam o tema `shadcn`, que lê as variáveis CSS de `glob
 - Os links de sessão do header só aparecem depois de o Clerk carregar no browser, por isso surgem um instante depois do resto da página.
 - As páginas não inglesas levam cerca de 20 KB comprimidos a mais no HTML, por causa das traduções do Clerk.
 
-### 5.5 Supabase (base de dados) — ⏳ Fase 3
+### 5.5 Supabase (base de dados)
 
-Criação do projeto, configuração do Clerk como fornecedor de autenticação, chaves, execução da migração SQL, esquema das tabelas `users` e `subscriptions`, políticas RLS e geração de tipos.
+**Configurar**
 
-### 5.6 Resend (e-mail) — ⏳ Fases 3 e 4
+1. Cria um projeto em [supabase.com/dashboard](https://supabase.com/dashboard).
+2. Preenche no `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL`: **Project Settings > Data API > Project URL**. Só o URL base (`https://xxxx.supabase.co`), sem `/rest/v1/` no fim.
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: **Project Settings > API Keys > Publishable key** (`sb_publishable_...`).
+   - `SUPABASE_SECRET_KEY`: **Project Settings > API Keys > Secret key** (`sb_secret_...`).
+3. Liga o Clerk ao Supabase. São precisos os dois lados:
+   - No Clerk, abre [dashboard.clerk.com/setup/supabase](https://dashboard.clerk.com/setup/supabase), escolhe a aplicação cujas chaves estão no `.env.local` e clica em **Activate Supabase integration**. Copia o **Clerk domain**.
+   - No Supabase, em **Authentication > Sign In / Providers > Third Party Auth**, adiciona o fornecedor **Clerk** e cola o domínio.
+4. Cria as tabelas: em **SQL Editor > New query**, cola o conteúdo de `supabase/migrations/20261112000000_users_and_subscriptions.sql` e clica em **Run**.
 
-Chave de API, domínio de envio e pré-visualização dos templates.
+**Tabelas**
+
+| Tabela | Uma linha por | Colunas principais | Escrita por |
+| --- | --- | --- | --- |
+| `users` | Utilizador do Clerk | `id` (ID do Clerk), `email`, `name`, `image_url`, `locale` | `syncUser` |
+| `subscriptions` | Subscrição do Lemon Squeezy | `id`, `user_id`, `status`, `variant_id`, `variant_name`, `customer_id`, `renews_at`, `ends_at`, `trial_ends_at` | Webhook de faturação (Fase 4) |
+
+As duas têm `created_at` e `updated_at`; o `updated_at` é atualizado por um trigger. Apagar um utilizador apaga as suas subscrições.
+
+**Modelo de acesso**
+
+- Sem sessão não há acesso a nenhuma tabela.
+- Um utilizador com sessão só pode **ler** as suas próprias linhas. O Supabase valida o token do Clerk e as políticas RLS comparam a claim `sub` (o ID do Clerk) com `users.id` e `subscriptions.user_id`.
+- Todas as **escritas** são feitas no servidor com a chave secreta, que ignora o RLS.
+
+**Três clientes**
+
+| Função | Ficheiro | Atua como | Usar em |
+| --- | --- | --- | --- |
+| `createServerSupabaseClient()` | `src/lib/supabase/server.ts` | O utilizador com sessão | Server Components, Server Actions e Route Handlers que leem dados do utilizador |
+| `useSupabase()` | `src/lib/supabase/client.ts` | O utilizador com sessão | Client Components |
+| `createAdminSupabaseClient()` | `src/lib/supabase/admin.ts` | Administrador, sem RLS | Escritas no servidor, depois de o código verificar quem está a pedir |
+
+```tsx
+// Server Component: só devolve as linhas do utilizador com sessão
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+const { data } = await createServerSupabaseClient()
+  .from("subscriptions")
+  .select("status, variant_name");
+```
+
+```tsx
+// Client Component
+"use client";
+import { useSupabase } from "@/lib/supabase/client";
+
+const supabase = useSupabase();
+```
+
+Os dois primeiros leem a sessão do pedido: no servidor, usa-os dentro de `<Suspense>` ou numa página com `loading.tsx`, como o resto do código que depende da sessão.
+
+**Sincronização de utilizadores**
+
+O dashboard chama a Server Action `syncUser` (`src/actions/user.ts`) em cada visita. Na primeira, cria a linha em `users` e envia o e-mail de boas-vindas. Nas seguintes, atualiza o e-mail, o nome, a imagem e o idioma com os dados atuais do Clerk.
+
+Consequências a conhecer:
+
+- Uma alteração de e-mail ou de nome no Clerk só chega à base de dados na visita seguinte ao dashboard.
+- Um utilizador apagado no Clerk fica na tabela `users`. Para o remover automaticamente é preciso um webhook do Clerk, que este boilerplate não inclui.
+- Cada visita ao dashboard faz um pedido à API do Clerk e uma ou duas escritas no Supabase.
+
+**Adicionar uma tabela**
+
+1. Cria um ficheiro novo em `supabase/migrations/` com a tabela, `enable row level security`, as permissões (`grant select ... to authenticated`) e uma política que compare `(select auth.jwt() ->> 'sub')` com a coluna do utilizador. Usa a migração existente como modelo.
+2. Corre-o no SQL Editor.
+3. Acrescenta a tabela a `src/types/database.ts`.
+
+O `database.ts` foi escrito à mão, no formato que o gerador do Supabase produz. O comando para o gerar a partir do projeto é `pnpm dlx supabase gen types typescript --project-id <ref> > src/types/database.ts`, que exige `supabase login`; não foi executado neste projeto.
+
+**Problemas comuns**
+
+| Sintoma | Causa |
+| --- | --- |
+| `permission denied for table ...` com sessão iniciada | A integração não está ativa do lado do Clerk: os tokens não trazem a claim `role` e o Supabase trata o pedido como anónimo. Repete o passo 3 e confirma que escolheste a aplicação certa |
+| `permission denied for table ...` ao escrever com `createServerSupabaseClient()` ou `useSupabase()` | É o comportamento esperado: os utilizadores só têm leitura. Faz a escrita numa Server Action com `createAdminSupabaseClient()` |
+
+### 5.6 Resend (e-mail)
+
+**Configurar**
+
+1. Cria uma chave em [resend.com/api-keys](https://resend.com/api-keys). A permissão "Sending access" é suficiente.
+2. Preenche no `.env.local`:
+   - `RESEND_API_KEY`: a chave (`re_...`).
+   - `EMAIL_FROM`: o remetente, por exemplo `"LiteLaunch <onboarding@resend.dev>"`.
+   - `NEXT_PUBLIC_APP_URL`: o URL público do site, usado nos links dos e-mails. Em desenvolvimento, `http://localhost:3000`.
+
+O remetente `onboarding@resend.dev` funciona sem configurar nada, mas só entrega no endereço da tua própria conta Resend. Para enviar a utilizadores reais, verifica um domínio em [resend.com/domains](https://resend.com/domains) e usa um endereço desse domínio em `EMAIL_FROM`.
+
+**E-mail de boas-vindas**
+
+É enviado pelo `syncUser` quando a linha do utilizador é criada, no idioma da página em que ele estava. O envio leva a chave de idempotência `welcome/<id do utilizador>`, por isso a Resend não o repete se a sincronização correr duas vezes num intervalo de 24 horas. Se o envio falhar, o erro fica no registo do servidor e o dashboard abre na mesma.
+
+**Criar outro e-mail**
+
+1. Cria o template em `src/emails/`, com os componentes de `react-email`. Recebe os textos já traduzidos como propriedades, como o `welcome.tsx`.
+2. Acrescenta os textos à chave `emails` dos dicionários.
+3. Envia com `sendEmail()` de `src/lib/resend.ts`, que gera as versões HTML e de texto simples.
+
+Fora de um pedido de página (num webhook, por exemplo) não há idioma ativo. Usa o que está guardado em `users.locale`: `getTranslations({ locale: user.locale, namespace: "emails.welcome" })`.
+
+Não há servidor de pré-visualização de e-mails configurado.
 
 ### 5.7 Lemon Squeezy (pagamentos) — ⏳ Fase 4
 
@@ -326,10 +436,11 @@ Metadados por idioma, sitemap, robots e publicação em produção.
 
 ## 6. Variáveis de ambiente
 
-As variáveis do Clerk são definitivas e estão no `.env.example`. As restantes são provisórias: os nomes são confirmados na fase que implementa cada serviço e consolidados no `.env.example` na Fase 5.
+As variáveis do Clerk, do Supabase e da Resend são definitivas e estão no `.env.example`. As do Lemon Squeezy são provisórias: os nomes são confirmados na Fase 4.
 
 | Variável | Serviço | Exposta ao browser | Fase |
 | --- | --- | --- | --- |
+| `NEXT_PUBLIC_APP_URL` | Aplicação (links nos e-mails; URLs de SEO na Fase 5) | Sim | 3 |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk | Sim | 2 |
 | `CLERK_SECRET_KEY` | Clerk | Não | 2 |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase | Sim | 3 |
@@ -340,7 +451,6 @@ As variáveis do Clerk são definitivas e estão no `.env.example`. As restantes
 | `LEMONSQUEEZY_API_KEY` | Lemon Squeezy | Não | 4 |
 | `LEMONSQUEEZY_STORE_ID` | Lemon Squeezy | Não | 4 |
 | `LEMONSQUEEZY_WEBHOOK_SECRET` | Lemon Squeezy | Não | 4 |
-| `NEXT_PUBLIC_APP_URL` | Aplicação (URLs absolutos de SEO) | Sim | 5 |
 
 Regra: tudo o que não começa por `NEXT_PUBLIC_` só pode ser lido em código de servidor (Server Components, Server Actions, Route Handlers).
 
@@ -357,6 +467,8 @@ Regra: tudo o que não começa por `NEXT_PUBLIC_` só pode ser lido em código d
 | `pnpm typecheck` | Gera os tipos das rotas e verifica os tipos sem emitir ficheiros |
 | `pnpm dlx shadcn@latest add <componente>` | Adiciona um componente shadcn/ui a `src/components/ui/` |
 
+Se o `pnpm typecheck` ou o `pnpm build` falharem com erros em `.next/dev/types` depois de apagares uma rota, apaga a pasta `.next`. São tipos gerados pelo `pnpm dev` que ficaram desatualizados.
+
 ---
 
 ## 8. Histórico da documentação
@@ -367,3 +479,4 @@ Regra: tudo o que não começa por `NEXT_PUBLIC_` só pode ser lido em código d
 | 2026-11-12 | 1 | Versões instaladas, estrutura real, decisões técnicas da Fase 1 e guias de instalação, Dark Mode e internacionalização |
 | 2026-11-12 | 1 | Revisão da Fase 1: idioma `pt-PT` com URL `/pt`, página 404 localizada, menu para ecrãs pequenos, botões dos planos e regras para trabalhar com `cacheComponents` |
 | 2026-11-12 | 2 | Autenticação com Clerk: guia de configuração, proteção de páginas, decisões sobre proxy, traduções e logout |
+| 2026-11-12 | 3 | Supabase e Resend: guias de configuração, esquema de dados, modelo de acesso, os três clientes, sincronização de utilizadores e e-mail de boas-vindas |

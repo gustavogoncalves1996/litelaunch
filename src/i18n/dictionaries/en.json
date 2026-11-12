@@ -111,6 +111,29 @@
       "title": "Account",
       "email": "Email",
       "memberSince": "Member since"
+    },
+    "plan": {
+      "title": "Plan",
+      "free": "Free",
+      "status": {
+        "on_trial": "Trial",
+        "active": "Active",
+        "paused": "Paused",
+        "past_due": "Payment overdue",
+        "unpaid": "Unpaid",
+        "cancelled": "Cancelled",
+        "expired": "Expired"
+      }
+    }
+  },
+  "emails": {
+    "welcome": {
+      "subject": "Welcome to {app}",
+      "preview": "Your {app} account is ready.",
+      "heading": "Welcome, {name}",
+      "body": "Your {app} account is ready. Open your dashboard to get started.",
+      "cta": "Open dashboard",
+      "footer": "You are receiving this email because you created a {app} account."
     }
   }
 }

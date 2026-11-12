@@ -111,6 +111,29 @@
       "title": "Conta",
       "email": "E-mail",
       "memberSince": "Membro desde"
+    },
+    "plan": {
+      "title": "Plano",
+      "free": "Gratuito",
+      "status": {
+        "on_trial": "Período de teste",
+        "active": "Ativa",
+        "paused": "Em pausa",
+        "past_due": "Pagamento em atraso",
+        "unpaid": "Por pagar",
+        "cancelled": "Cancelada",
+        "expired": "Expirada"
+      }
+    }
+  },
+  "emails": {
+    "welcome": {
+      "subject": "Bem-vindo ao {app}",
+      "preview": "A tua conta no {app} está pronta.",
+      "heading": "Olá, {name}",
+      "body": "A tua conta no {app} está pronta. Abre o dashboard para começar.",
+      "cta": "Abrir o dashboard",
+      "footer": "Recebeste este e-mail porque criaste uma conta no {app}."
     }
   }
 }

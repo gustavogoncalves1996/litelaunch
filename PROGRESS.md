@@ -11,7 +11,7 @@ SaaS Boilerplate ultra-leve e modular: Next.js (App Router) · TypeScript strict
 | 0 | Inicialização do projeto e plano de trabalho | 🟢 Concluída |
 | 1 | Estrutura base, TypeScript, Dark Mode e i18n core | 🟢 Concluída |
 | 2 | Autenticação gerida e sincronização de estado (Clerk) | 🟢 Concluída |
-| 3 | Infraestrutura de dados ultra-leve (Supabase) | ⚪ Por iniciar |
+| 3 | Infraestrutura de dados ultra-leve (Supabase) | 🟢 Concluída |
 | 4 | Faturação segura e webhooks (Lemon Squeezy) | ⚪ Por iniciar |
 | 5 | SEO, performance, ficheiros ambientais e polimento | ⚪ Por iniciar |
 
@@ -119,27 +119,29 @@ Supabase SDK + tabelas de utilizadores e subscrições + Server Actions. O Clerk
 
 ### 3.1 Cliente Supabase e tabelas
 
-- [ ] Criar o projeto no Supabase e definir as chaves em `.env.local`
-- [ ] Configurar o Clerk como fornecedor de autenticação de terceiros no Supabase
-- [ ] Clientes Supabase em `src/lib/supabase/`: servidor e browser (ambos com o token da sessão do Clerk) e administrador server-only (chave secreta, para webhooks)
-- [ ] Migração SQL em `supabase/migrations/`: tabelas `users` e `subscriptions`, índices e políticas RLS por utilizador
-- [ ] Tipos da base de dados em `src/types/database.ts` e clientes tipados com `Database`
+- [x] Criar o projeto no Supabase e definir as chaves em `.env.local`
+- [x] Ligar o Clerk ao Supabase: ativar a integração no Clerk e adicionar o Clerk como fornecedor de autenticação de terceiros no Supabase
+- [x] Clientes Supabase em `src/lib/supabase/`: servidor e browser (ambos com o token da sessão do Clerk) e administrador server-only (chave secreta, para escritas)
+- [x] Migração SQL em `supabase/migrations/`: tabelas `users` e `subscriptions`, índice e políticas RLS por utilizador
+- [x] Permissões: os utilizadores só leem as suas próprias linhas; todas as escritas passam pelo servidor
+- [x] Tipos da base de dados em `src/types/database.ts` e clientes tipados com `Database`
 
 ### 3.2 Sincronização de utilizadores
 
-- [ ] Server Action `syncUser`: verifica a sessão com `auth()` e faz um upsert idempotente a partir dos dados do Clerk
-- [ ] Executar a sincronização na entrada do dashboard
-- [ ] Dashboard a ler o perfil e o estado da subscrição a partir da base de dados
+- [x] Server Action `syncUser`: verifica a sessão e cria ou atualiza a linha do utilizador a partir dos dados do Clerk
+- [x] Executar a sincronização na entrada do dashboard
+- [x] Dashboard a ler o perfil e o estado da subscrição a partir da base de dados
 
 ### 3.3 E-mail de boas-vindas
 
-- [ ] Cliente Resend em `src/lib/resend.ts` e template React Email em `src/emails/`
-- [ ] Enviar o e-mail de boas-vindas apenas na primeira sincronização
+- [x] Cliente Resend em `src/lib/resend.ts` e template React Email em `src/emails/welcome.tsx`
+- [x] Enviar o e-mail de boas-vindas apenas na primeira sincronização, no idioma do utilizador
 
 ### 3.4 Fecho da fase
 
-- [ ] `lint`, `typecheck` e `build` sem erros
-- [ ] Atualizar `DOCUMENTATION.md` (configuração do Supabase e do Resend, esquema de dados)
+- [x] `lint`, `typecheck` e `build` sem erros
+- [x] Validação com dados reais: isolamento entre utilizadores (RLS), sincronização, cliente de browser e envio de e-mail
+- [x] Atualizar `DOCUMENTATION.md` (configuração do Supabase e do Resend, esquema de dados)
 
 ---
 
@@ -159,14 +161,14 @@ Lemon Squeezy + rota de webhook com assinatura criptográfica + fluxo de checkou
 - [ ] Route Handler `src/app/api/webhooks/lemonsqueezy/route.ts`
 - [ ] Validar a assinatura HMAC SHA-256 (`X-Signature`) sobre o corpo em bruto, com comparação em tempo constante
 - [ ] Tipar os payloads dos eventos de subscrição
-- [ ] Tratar criação, atualização, cancelamento e expiração com upsert idempotente em `subscriptions`
-- [ ] Excluir `/api/webhooks/**` do i18n e da autenticação no `proxy.ts`
+- [ ] Tratar criação, atualização, cancelamento e expiração com upsert idempotente em `subscriptions`, usando o cliente de administrador
+- [ ] Confirmar que `/api/webhooks/**` não é redirecionado pelo i18n nem exige sessão no `proxy.ts`
 
 ### 4.3 Gestão da subscrição
 
 - [ ] Página de faturação no dashboard: plano atual, estado e link para o portal do cliente
 - [ ] Helper server-side para verificar o plano ativo
-- [ ] E-mail de confirmação de subscrição (Resend)
+- [ ] E-mail de confirmação de subscrição (Resend), no idioma guardado em `users.locale`
 
 ### 4.4 Fecho da fase
 
