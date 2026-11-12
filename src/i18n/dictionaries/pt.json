@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "{name} — O boilerplate SaaS ultra-leve",
+    "description": "Lança o teu SaaS em minutos com autenticação, base de dados, faturação, e-mails, modo escuro e i18n já integrados."
+  },
+  "header": {
+    "navigation": "Navegação principal",
+    "features": "Funcionalidades",
+    "pricing": "Preços"
+  },
+  "theme": {
+    "label": "Alterar tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "locale": {
+    "label": "Alterar idioma"
+  },
+  "hero": {
+    "badge": "Next.js · TypeScript · Tailwind CSS",
+    "title": "Lança o teu SaaS, não o teu boilerplate",
+    "description": "Uma base enxuta, tipada e modular assente em serviços geridos. Configura-a em menos de cinco minutos e dedica o teu tempo ao produto.",
+    "primaryCta": "Começar",
+    "secondaryCta": "Ver funcionalidades"
+  },
+  "features": {
+    "title": "Tudo o que precisas, nada do que não precisas",
+    "description": "Cada peça é um serviço gerido por trás de uma integração pequena e legível.",
+    "items": {
+      "auth": {
+        "title": "Autenticação gerida",
+        "description": "Login, registo e sessões tratados pelo Clerk, com rotas privadas protegidas por omissão."
+      },
+      "database": {
+        "title": "Camada de dados ultra-leve",
+        "description": "Supabase através do cliente oficial. Tabelas tipadas e Server Actions, sem ORM pesado."
+      },
+      "billing": {
+        "title": "Faturação sem dores de cabeça com o IVA",
+        "description": "O Lemon Squeezy atua como Merchant of Record, com webhooks validados criptograficamente."
+      },
+      "emails": {
+        "title": "E-mails transacionais",
+        "description": "Templates escritos em React e entregues com o Resend."
+      },
+      "i18n": {
+        "title": "Multilingue de raiz",
+        "description": "Rotas por idioma e dicionários tipados, renderizados no servidor."
+      },
+      "theme": {
+        "title": "Modo escuro incluído",
+        "description": "Temas claro, escuro e do sistema, sem flash ao carregar."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Preços simples",
+    "description": "Começa gratuitamente e faz upgrade quando cresceres.",
+    "perMonth": "por mês",
+    "popular": "Mais popular",
+    "plans": {
+      "free": {
+        "name": "Gratuito",
+        "description": "Para projetos pessoais e experiências."
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Para produtos com clientes pagantes."
+      }
+    },
+    "features": {
+      "oneProject": "1 projeto",
+      "unlimitedProjects": "Projetos ilimitados",
+      "communitySupport": "Suporte da comunidade",
+      "prioritySupport": "Suporte prioritário",
+      "analytics": "Análises avançadas",
+      "customDomain": "Domínio personalizado"
+    }
+  },
+  "cta": {
+    "title": "Pronto para lançar?",
+    "description": "Escolhe um plano e passa da ideia à produção hoje.",
+    "button": "Começar"
+  },
+  "footer": {
+    "tagline": "O boilerplate SaaS ultra-leve.",
+    "builtWith": "Construído com Next.js, Clerk, Supabase e Lemon Squeezy."
+  }
+}

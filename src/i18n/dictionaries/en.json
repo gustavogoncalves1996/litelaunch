@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "{name} — The ultra-light SaaS boilerplate",
+    "description": "Launch your SaaS in minutes with authentication, database, billing, emails, dark mode and i18n already wired up."
+  },
+  "header": {
+    "navigation": "Main navigation",
+    "features": "Features",
+    "pricing": "Pricing"
+  },
+  "theme": {
+    "label": "Change theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "label": "Change language"
+  },
+  "hero": {
+    "badge": "Next.js · TypeScript · Tailwind CSS",
+    "title": "Ship your SaaS, not your boilerplate",
+    "description": "A lean, typed and modular foundation built on managed services. Set it up in under five minutes and spend your time on the product.",
+    "primaryCta": "Get started",
+    "secondaryCta": "Explore features"
+  },
+  "features": {
+    "title": "Everything you need, nothing you don't",
+    "description": "Each piece is a managed service behind a small, readable integration.",
+    "items": {
+      "auth": {
+        "title": "Managed authentication",
+        "description": "Sign-in, sign-up and sessions handled by Clerk, with private routes protected by default."
+      },
+      "database": {
+        "title": "Ultra-light data layer",
+        "description": "Supabase through the official client. Typed tables and Server Actions, no heavy ORM."
+      },
+      "billing": {
+        "title": "Billing without tax headaches",
+        "description": "Lemon Squeezy acts as Merchant of Record, with cryptographically verified webhooks."
+      },
+      "emails": {
+        "title": "Transactional emails",
+        "description": "Templates written in React and delivered with Resend."
+      },
+      "i18n": {
+        "title": "Multilingual by default",
+        "description": "Locale-based routes and typed dictionaries, rendered on the server."
+      },
+      "theme": {
+        "title": "Dark mode included",
+        "description": "Light, dark and system themes with no flash on load."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Simple pricing",
+    "description": "Start for free and upgrade when you grow.",
+    "perMonth": "per month",
+    "popular": "Most popular",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "For side projects and experiments."
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For products with paying customers."
+      }
+    },
+    "features": {
+      "oneProject": "1 project",
+      "unlimitedProjects": "Unlimited projects",
+      "communitySupport": "Community support",
+      "prioritySupport": "Priority support",
+      "analytics": "Advanced analytics",
+      "customDomain": "Custom domain"
+    }
+  },
+  "cta": {
+    "title": "Ready to launch?",
+    "description": "Pick a plan and go from idea to production today.",
+    "button": "Get started"
+  },
+  "footer": {
+    "tagline": "The ultra-light SaaS boilerplate.",
+    "builtWith": "Built with Next.js, Clerk, Supabase and Lemon Squeezy."
+  }
+}
