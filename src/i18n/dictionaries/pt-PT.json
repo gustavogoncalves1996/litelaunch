@@ -5,6 +5,7 @@
   },
   "header": {
     "navigation": "Navegação principal",
+    "menu": "Abrir menu",
     "features": "Funcionalidades",
     "pricing": "Preços"
   },
@@ -62,11 +63,13 @@
     "plans": {
       "free": {
         "name": "Gratuito",
-        "description": "Para projetos pessoais e experiências."
+        "description": "Para projetos pessoais e experiências.",
+        "cta": "Começar gratuitamente"
       },
       "pro": {
         "name": "Pro",
-        "description": "Para produtos com clientes pagantes."
+        "description": "Para produtos com clientes pagantes.",
+        "cta": "Escolher o Pro"
       }
     },
     "features": {
@@ -86,5 +89,10 @@
   "footer": {
     "tagline": "O boilerplate SaaS ultra-leve.",
     "builtWith": "Construído com Next.js, Clerk, Supabase e Lemon Squeezy."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que procuras não existe ou foi movida.",
+    "back": "Voltar ao início"
   }
 }

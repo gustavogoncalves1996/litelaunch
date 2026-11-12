@@ -1,8 +1,9 @@
 import { useTranslations } from "next-intl";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "@/i18n/navigation";
-import { siteConfig } from "@/lib/site";
+import { navLinks, siteConfig } from "@/lib/site";
 
 export function SiteHeader() {
   const t = useTranslations("header");
@@ -18,17 +19,17 @@ export function SiteHeader() {
             aria-label={t("navigation")}
             className="hidden gap-6 text-sm text-muted-foreground sm:flex"
           >
-            <a href="#features" className="hover:text-foreground">
-              {t("features")}
-            </a>
-            <a href="#pricing" className="hover:text-foreground">
-              {t("pricing")}
-            </a>
+            {navLinks.map(({ key, href }) => (
+              <Link key={key} href={href} className="hover:text-foreground">
+                {t(key)}
+              </Link>
+            ))}
           </nav>
         </div>
         <div className="flex items-center gap-1">
           <LocaleSwitcher />
           <ThemeToggle />
+          <MobileNav />
         </div>
       </div>
     </header>

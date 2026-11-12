@@ -1,5 +1,7 @@
 import { CheckIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -69,6 +71,17 @@ export function Pricing() {
                   {t("perMonth")}
                 </span>
               </p>
+              <Link
+                href="/sign-up"
+                className={cn(
+                  buttonVariants({
+                    variant: plan.featured ? "default" : "outline",
+                  }),
+                  "mt-6 w-full",
+                )}
+              >
+                {t(`plans.${plan.key}.cta`)}
+              </Link>
               <ul className="mt-6 space-y-2 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">

@@ -48,18 +48,21 @@ Legenda: ⚪ por iniciar · 🟡 em curso · 🟢 concluída
 
 ### 1.3 i18n Core (next-intl)
 
-- [x] `src/i18n/routing.ts`: `locales` (`en`, `pt`), `defaultLocale` (`en`), tipo `Locale` e nomes dos idiomas
-- [x] Dicionários `en.json` e `pt.json` em `src/i18n/dictionaries/`
+- [x] `src/i18n/routing.ts`: `locales` (`en`, `pt-PT`), `defaultLocale` (`en`), prefixo `/pt` para o `pt-PT`, tipo `Locale` e nomes dos idiomas
+- [x] Dicionários `en.json` e `pt-PT.json` em `src/i18n/dictionaries/`
 - [x] `src/i18n/request.ts` e `src/types/i18n.d.ts`: mensagens tipadas, com erro de compilação se faltar uma chave num dicionário
 - [x] `src/proxy.ts`: deteção do idioma (`Accept-Language` e cookie) e redirecionamento para `/[locale]/...`
 - [x] `src/app/[locale]/layout.tsx`: `<html lang>`, `generateStaticParams`, 404 para locales inválidos
-- [x] Componente `LocaleSwitcher` que preserva o caminho atual
+- [x] Componente `LocaleSwitcher` que preserva o caminho atual, a query string e a âncora
 
 ### 1.4 Landing Page Base
 
 - [x] Layout de marketing (header + footer) em `src/app/[locale]/(marketing)/`
-- [x] Secções: hero, funcionalidades, preços (estático nesta fase, sem botões de compra) e CTA
+- [x] Secções: hero, funcionalidades, preços e CTA
+- [x] Botões dos planos a apontar para `/sign-up` (a página chega na Fase 2; até lá mostram o 404 localizado)
 - [x] Botões de alternância de tema e de idioma no header
+- [x] Menu de navegação para ecrãs pequenos
+- [x] Página 404 localizada para URLs inexistentes, com código HTTP 404
 - [x] Todo o texto vem dos dicionários (zero strings fixas nos componentes)
 
 ### 1.5 Fecho da fase
@@ -81,16 +84,26 @@ Clerk + proteção de rotas. A sincronização com a base de dados é implementa
 - [ ] Páginas `/[locale]/sign-in` e `/[locale]/sign-up` em `src/app/[locale]/(auth)/`
 - [ ] Redirecionamentos pós-login e pós-logout que preservam o locale
 - [ ] Header com estado de sessão (entrar / ir para o dashboard / menu do utilizador)
-- [ ] Ligar os CTAs da landing page ao sign-up e adicionar os botões dos planos na secção de preços
+- [ ] Ligar os CTAs "Começar" do hero e da secção final ao sign-up (os botões dos planos já apontam para lá)
 
-### 2.2 Proteção de rotas privadas
+### 2.2 Compatibilidade com `cacheComponents`
+
+O layout raiz e o header são hoje totalmente estáticos. A sessão só existe no momento do pedido, por isso não pode entrar nesse shell.
+
+- [ ] Confirmar na documentação do Clerk como colocar o `ClerkProvider` com `cacheComponents` ativo, antes de o adicionar ao layout raiz
+- [ ] Toda a UI que depende da sessão fica atrás de `<Suspense>`, com um fallback do mesmo tamanho para o header não saltar
+- [ ] Ler a sessão (`auth()`) só em componentes dinâmicos, nunca dentro de uma função com `use cache`
+- [ ] Logout com navegação completa, para limpar o estado das rotas que o Next.js mantém em memória
+- [ ] Confirmar no build que `/en` e `/pt-PT` continuam pré-renderizadas como estáticas
+
+### 2.3 Proteção de rotas privadas
 
 - [ ] Compor o Clerk e o i18n num único `src/proxy.ts`
 - [ ] Proteger `/[locale]/dashboard/**` e redirecionar visitantes para o sign-in no idioma certo
 - [ ] Layout base do dashboard com dados do utilizador autenticado
 - [ ] Segunda verificação de sessão no servidor (o proxy não é a única barreira)
 
-### 2.3 Fecho da fase
+### 2.4 Fecho da fase
 
 - [ ] `lint`, `typecheck` e `build` sem erros
 - [ ] Atualizar `DOCUMENTATION.md` (configuração do Clerk passo a passo)
@@ -172,7 +185,7 @@ Lemon Squeezy + rota de webhook com assinatura criptográfica + fluxo de checkou
 - [ ] `generateMetadata` por locale: título, descrição, canonical e `alternates.languages` (hreflang)
 - [ ] Open Graph e Twitter Cards localizados
 - [ ] `sitemap.ts` e `robots.ts` com todas as rotas públicas por locale
-- [ ] Páginas `not-found` e `error` localizadas
+- [ ] Página `error` localizada (a `not-found` foi feita na Fase 1)
 
 ### 5.3 Performance
 
@@ -185,6 +198,7 @@ Lemon Squeezy + rota de webhook com assinatura criptográfica + fluxo de checkou
 - [ ] Revisão final do `DOCUMENTATION.md`: guia de arranque em menos de 5 minutos e deploy
 - [ ] `lint`, `typecheck` e `build` sem erros
 - [ ] Remover os `.gitkeep` que já não são necessários
+- [ ] Reavaliar o TypeScript 7 quando o `typescript-eslint` o suportar
 
 ---
 
@@ -201,3 +215,13 @@ Confirmadas pelo utilizador antes da Fase 1.
 | 5 | 1 | Idioma por omissão | Inglês (`en`) |
 | 6 | 1 | Gestor de pacotes | pnpm |
 | 7 | — | Commits | Um commit local no fim de cada fase, sem push |
+
+Confirmadas na revisão da Fase 1.
+
+| # | Decisão | Escolha |
+| --- | --- | --- |
+| 8 | Troca de idioma | Mantém o recarregamento da página |
+| 9 | Botões dos planos | Adicionados já, a apontar para `/sign-up` |
+| 10 | Formatação em português | Idioma `pt-PT` com o URL a continuar `/pt` |
+| 11 | `AGENTS.md` gerado pelo Next.js | Mantido |
+| 12 | `cacheComponents` | Mantido ativo, com as exigências para o Clerk detalhadas na Fase 2 (2.2) |

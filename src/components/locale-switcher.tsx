@@ -10,19 +10,22 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getPathname, usePathname } from "@/i18n/navigation";
+import { getPathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
 
 export function LocaleSwitcher() {
   const t = useTranslations("locale");
   const locale = useLocale();
-  const pathname = usePathname();
 
   // The root layout depends on [locale], so a client-side navigation would keep
   // the previous locale's tree mounted (hidden) with its own, stale ThemeProvider.
   // A full page load guarantees a single root layout.
+  // The URL is read on click, not with usePathname(), so the header stays static.
   function switchLocale(next: Locale) {
-    window.location.assign(getPathname({ href: pathname, locale: next }));
+    const { pathname, search, hash } = window.location;
+    const prefix = getPathname({ href: "/", locale: next });
+    // The first path segment is always the locale prefix.
+    window.location.assign(pathname.replace(/^\/[^/]+/, prefix) + search + hash);
   }
 
   return (

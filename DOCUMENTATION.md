@@ -58,7 +58,9 @@ litelaunch/
 │   │   │   ├── layout.tsx               # Layout raiz: <html lang>, fonte, tema e i18n
 │   │   │   ├── (marketing)/
 │   │   │   │   ├── layout.tsx           # Header + footer
-│   │   │   │   └── page.tsx             # Landing page
+│   │   │   │   ├── page.tsx             # Landing page
+│   │   │   │   ├── not-found.tsx        # Página 404 localizada
+│   │   │   │   └── [...rest]/page.tsx   # Envia os URLs inexistentes para o 404
 │   │   │   ├── (auth)/                  # Fase 2: sign-in e sign-up do Clerk
 │   │   │   └── dashboard/               # Fase 2: área privada
 │   │   ├── api/webhooks/lemonsqueezy/   # Fase 4: webhook de faturação (fora do i18n)
@@ -69,17 +71,18 @@ litelaunch/
 │   │   ├── landing/                     # hero, features, pricing, cta
 │   │   ├── ui/                          # shadcn/ui: button, dropdown-menu
 │   │   ├── locale-switcher.tsx
+│   │   ├── mobile-nav.tsx               # Menu de navegação em ecrãs pequenos
 │   │   ├── site-footer.tsx
 │   │   ├── site-header.tsx
 │   │   └── theme-toggle.tsx
 │   ├── emails/                          # Fase 3: templates React Email
 │   ├── i18n/
-│   │   ├── dictionaries/                # en.json, pt.json
+│   │   ├── dictionaries/                # en.json, pt-PT.json
 │   │   ├── navigation.ts                # Link, redirect, usePathname e useRouter com locale
 │   │   ├── request.ts                   # Locale e dicionário de cada pedido
 │   │   └── routing.ts                   # Idiomas suportados e idioma por omissão
 │   ├── lib/
-│   │   ├── site.ts                      # Nome do produto
+│   │   ├── site.ts                      # Nome do produto e links de navegação
 │   │   └── utils.ts                     # cn()
 │   ├── types/
 │   │   └── i18n.d.ts                    # Liga os tipos do next-intl aos dicionários
@@ -110,8 +113,10 @@ O `AGENTS.md` é criado pelo `next dev`. Para o desativar, define `agentRules: f
 | `src/proxy.ts` em vez de `middleware.ts` | No Next.js 16 a convenção `middleware` foi descontinuada e passou a chamar-se `proxy`. É aqui que vive o "middleware de i18n" e, a partir da Fase 2, a proteção de rotas do Clerk |
 | i18n com `next-intl` | Rotas por idioma, plurais e formatação de números e datas, com as chaves dos dicionários verificadas pelo TypeScript |
 | `cacheComponents` e `partialPrefetching` ativos | São a configuração por omissão do `create-next-app` 16.4 e passam a ser obrigatórios na próxima versão major. As páginas são pré-renderizadas e só o conteúdo dinâmico é pedido ao servidor |
-| A troca de idioma recarrega a página | O layout raiz depende de `[locale]`. Com `cacheComponents`, uma navegação no cliente manteria montada a árvore do idioma anterior, com um `ThemeProvider` próprio e desatualizado |
-| TypeScript 6 em vez de 7 | O `typescript-eslint` ainda não suporta o TypeScript 7 |
+| A troca de idioma recarrega a página | O layout raiz depende de `[locale]`. Com `cacheComponents`, uma navegação no cliente manteria montada a árvore do idioma anterior, com um `ThemeProvider` próprio e desatualizado. A documentação do Next.js recomenda o mesmo para mudanças de estado global, como o logout |
+| Idioma `pt-PT` com o URL `/pt` | O código `pt-PT` dá a formatação de Portugal (`19 €`) e o `<html lang>` correto; o prefixo `/pt` mantém o URL curto |
+| 404 localizado com `notFound()` em `generateMetadata` | Dá um 404 real com a página completa renderizada no servidor. Lançado a partir da página, o `cacheComponents` pré-renderiza um shell vazio que só o browser preenche |
+| TypeScript 6 em vez de 7 | O TypeScript 7 não inclui a API JavaScript do compilador de que o `typescript-eslint` precisa; sem ela, o ESLint e a regra `no-explicit-any` deixam de funcionar |
 | Tailwind pelo loader do Turbopack | `@tailwindcss/turbopack` em `next.config.ts`, como no `create-next-app`. Dispensa o PostCSS |
 | shadcn/ui sobre Base UI | É a base por omissão do `shadcn init`. Os componentes ficam em `src/components/ui/` e são teus para alterar |
 | `src/lib/` plano | Um ficheiro por serviço. Só passa a pasta quando o serviço precisa de clientes separados para servidor e browser |
@@ -119,6 +124,14 @@ O `AGENTS.md` é criado pelo `next dev`. Para o desativar, define `agentRules: f
 | Webhooks fora de `/[locale]` | São chamados por máquinas, não têm idioma e não passam pela autenticação do utilizador |
 
 As decisões de produto confirmadas contigo estão em [PROGRESS.md → Decisões tomadas](./PROGRESS.md#decisões-tomadas).
+
+### Trabalhar com `cacheComponents`
+
+Com esta opção, o Next.js pré-renderiza um shell estático de cada rota e mantém em memória as últimas rotas visitadas. Três regras evitam surpresas:
+
+- **Hooks de URL em layouts partilhados.** Um hook que lê o URL num Client Component do header ou do footer, como `usePathname()`, faz falhar o build nas rotas dinâmicas, a menos que esteja dentro de `<Suspense>`. Quando o valor só é preciso num clique, lê `window.location` no handler, como faz o `locale-switcher.tsx`.
+- **Dados do pedido.** Cookies, cabeçalhos e sessão só existem no momento do pedido. O componente que os lê tem de estar dentro de `<Suspense>` para o resto da página continuar estático.
+- **Menus e diálogos.** Uma rota escondida conserva o seu estado. Fecha os menus ao selecionar uma opção (`closeOnClick`) para não reaparecerem abertos quando o utilizador volta.
 
 ---
 
@@ -197,9 +210,20 @@ Acrescenta a chave a `src/i18n/dictionaries/en.json` e a todos os outros dicion�
 
 O TypeScript assinala os passos 1 e 3 se ficarem incompletos.
 
-**Formatação regional**
+**Códigos de idioma e URLs**
 
-O idioma `pt` usa as convenções genéricas do português na formatação (`€ 19`). Para as de Portugal (`19 €`), usa `pt-PT` como código do idioma em `routing.ts`; o URL passa a ser `/pt-PT`.
+O português está configurado como `pt-PT`, para que moedas, números e datas sigam as convenções de Portugal (`19 €` em vez de `€ 19`). O URL continua a ser `/pt` por causa de `localePrefix.prefixes` em `routing.ts`. Quem tem o browser em `pt-BR` também é encaminhado para `/pt`.
+
+Para um idioma com variante regional, usa o código completo em `locales` e, se quiseres um URL mais curto, acrescenta-o a `prefixes`. Sem entrada em `prefixes`, o URL usa o próprio código.
+
+**Página 404**
+
+Qualquer URL sem página dentro de um idioma cai em `src/app/[locale]/(marketing)/[...rest]/page.tsx`, que responde com 404 e mostra `not-found.tsx` no idioma certo, com header e footer. Os textos estão na chave `notFound` dos dicionários.
+
+Duas particularidades:
+
+- Em `pnpm dev` a resposta tem código 200; o 404 real só existe no build de produção, onde a página é pré-renderizada.
+- Em produção, quem abre diretamente um URL inexistente e depois navega pelo site gera dois erros `Minified React error #419` na consola. São avisos de recuperação do React e a página funciona normalmente. Se usares monitorização de erros, ignora essa mensagem.
 
 ### 5.4 Clerk (autenticação) — ⏳ Fase 2
 
@@ -264,3 +288,4 @@ Regra: tudo o que não começa por `NEXT_PUBLIC_` só pode ser lido em código d
 | --- | --- | --- |
 | 2026-11-11 | 0 | Criação do documento: stack, princípios, estrutura de pastas, decisões iniciais e esqueleto dos guias |
 | 2026-11-12 | 1 | Versões instaladas, estrutura real, decisões técnicas da Fase 1 e guias de instalação, Dark Mode e internacionalização |
+| 2026-11-12 | 1 | Revisão da Fase 1: idioma `pt-PT` com URL `/pt`, página 404 localizada, menu para ecrãs pequenos, botões dos planos e regras para trabalhar com `cacheComponents` |

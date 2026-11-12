@@ -5,6 +5,7 @@
   },
   "header": {
     "navigation": "Main navigation",
+    "menu": "Open menu",
     "features": "Features",
     "pricing": "Pricing"
   },
@@ -62,11 +63,13 @@
     "plans": {
       "free": {
         "name": "Free",
-        "description": "For side projects and experiments."
+        "description": "For side projects and experiments.",
+        "cta": "Start for free"
       },
       "pro": {
         "name": "Pro",
-        "description": "For products with paying customers."
+        "description": "For products with paying customers.",
+        "cta": "Get Pro"
       }
     },
     "features": {
@@ -86,5 +89,10 @@
   "footer": {
     "tagline": "The ultra-light SaaS boilerplate.",
     "builtWith": "Built with Next.js, Clerk, Supabase and Lemon Squeezy."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for doesn't exist or has been moved.",
+    "back": "Back to home"
   }
 }
