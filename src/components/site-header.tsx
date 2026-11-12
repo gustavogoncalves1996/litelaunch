@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { HeaderAuth } from "@/components/header-auth";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -27,6 +28,8 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex items-center gap-1">
+          {/* First in the row: it appears after Clerk loads and must not push the toggles. */}
+          <HeaderAuth />
           <LocaleSwitcher />
           <ThemeToggle />
           <MobileNav />

@@ -2,7 +2,7 @@
 
 Boilerplate SaaS ultra-leve e modular. O objetivo é que a configuração completa demore menos de 5 minutos: todos os serviços pesados (autenticação, base de dados, pagamentos, e-mail) são geridos, e o código que fica no repositório é pouco, direto e totalmente tipado.
 
-> **Estado:** Fase 1 concluída: estrutura base, Dark Mode, i18n e landing page. As secções marcadas com ⏳ são preenchidas na fase indicada. O progresso está em [PROGRESS.md](./PROGRESS.md).
+> **Estado:** Fases 1 e 2 concluídas: estrutura base, Dark Mode, i18n, landing page e autenticação com Clerk. As secções marcadas com ⏳ são preenchidas na fase indicada. O progresso está em [PROGRESS.md](./PROGRESS.md).
 
 ## Índice
 
@@ -31,7 +31,7 @@ Boilerplate SaaS ultra-leve e modular. O objetivo é que a configuração comple
 | E-mail | Resend + React Email | E-mails transacionais em React | 3–4 |
 | Pagamentos | Lemon Squeezy | Merchant of Record (trata do IVA) | 4 |
 
-Versões instaladas na Fase 1: Next.js 16.4.6, React 19.3.1, TypeScript 6.0.3, Tailwind CSS 4.3.5, next-intl 4.14.10, next-themes 0.4.6, shadcn/ui sobre Base UI 1.9 e pnpm 12.14. As versões dos serviços (Clerk, Supabase, Lemon Squeezy, Resend) são fixadas na fase que os instala.
+Versões instaladas na Fase 1: Next.js 16.4.6, React 19.3.1, TypeScript 6.0.3, Tailwind CSS 4.3.5, next-intl 4.14.10, next-themes 0.4.6, shadcn/ui sobre Base UI 1.9 e pnpm 12.14. Na Fase 2: `@clerk/nextjs` 7.9.25, `@clerk/ui` 1.42.4 (tema shadcn) e `@clerk/localizations` 4.24.6. As versões dos restantes serviços (Supabase, Lemon Squeezy, Resend) são fixadas na fase que os instala.
 
 ---
 
@@ -55,14 +55,20 @@ litelaunch/
 ├── src/
 │   ├── app/
 │   │   ├── [locale]/                    # Todas as páginas vivem sob o idioma
-│   │   │   ├── layout.tsx               # Layout raiz: <html lang>, fonte, tema e i18n
+│   │   │   ├── layout.tsx               # Layout raiz: <html lang>, fonte, tema, i18n e sessão
 │   │   │   ├── (marketing)/
 │   │   │   │   ├── layout.tsx           # Header + footer
 │   │   │   │   ├── page.tsx             # Landing page
 │   │   │   │   ├── not-found.tsx        # Página 404 localizada
 │   │   │   │   └── [...rest]/page.tsx   # Envia os URLs inexistentes para o 404
-│   │   │   ├── (auth)/                  # Fase 2: sign-in e sign-up do Clerk
-│   │   │   └── dashboard/               # Fase 2: área privada
+│   │   │   ├── (auth)/
+│   │   │   │   ├── layout.tsx           # Página centrada, só com logo, idioma e tema
+│   │   │   │   ├── sign-in/[[...sign-in]]/page.tsx
+│   │   │   │   └── sign-up/[[...sign-up]]/page.tsx
+│   │   │   └── dashboard/               # Área privada
+│   │   │       ├── layout.tsx           # Header com o menu do utilizador
+│   │   │       ├── loading.tsx          # Esqueleto enquanto a sessão é lida
+│   │   │       └── page.tsx             # Protegida com auth.protect()
 │   │   ├── api/webhooks/lemonsqueezy/   # Fase 4: webhook de faturação (fora do i18n)
 │   │   ├── globals.css                  # Tailwind e variáveis de tema do shadcn/ui
 │   │   └── icon.svg                     # Favicon
@@ -70,6 +76,8 @@ litelaunch/
 │   ├── components/
 │   │   ├── landing/                     # hero, features, pricing, cta
 │   │   ├── ui/                          # shadcn/ui: button, dropdown-menu
+│   │   ├── auth-provider.tsx            # ClerkProvider com URLs, tema e traduções
+│   │   ├── header-auth.tsx              # Entrar / Começar / Dashboard / menu do utilizador
 │   │   ├── locale-switcher.tsx
 │   │   ├── mobile-nav.tsx               # Menu de navegação em ecrãs pequenos
 │   │   ├── site-footer.tsx
@@ -78,6 +86,7 @@ litelaunch/
 │   ├── emails/                          # Fase 3: templates React Email
 │   ├── i18n/
 │   │   ├── dictionaries/                # en.json, pt-PT.json
+│   │   ├── clerk.ts                     # Traduções da interface do Clerk por idioma
 │   │   ├── navigation.ts                # Link, redirect, usePathname e useRouter com locale
 │   │   ├── request.ts                   # Locale e dicionário de cada pedido
 │   │   └── routing.ts                   # Idiomas suportados e idioma por omissão
@@ -86,8 +95,9 @@ litelaunch/
 │   │   └── utils.ts                     # cn()
 │   ├── types/
 │   │   └── i18n.d.ts                    # Liga os tipos do next-intl aos dicionários
-│   └── proxy.ts                         # Deteção de idioma e redirecionamento
+│   └── proxy.ts                         # Sessão do Clerk, deteção de idioma e redirecionamentos
 ├── supabase/migrations/                 # Fase 3: SQL das tabelas
+├── .env.example                         # Variáveis de ambiente a copiar para .env.local
 ├── AGENTS.md                            # Gerado pelo Next.js para agentes de IA
 ├── components.json                      # Configuração do shadcn/ui
 ├── eslint.config.mjs
@@ -99,7 +109,7 @@ litelaunch/
 └── PROGRESS.md
 ```
 
-Os parênteses em `(marketing)` e `(auth)` são grupos de rotas do Next.js: organizam layouts diferentes sem acrescentar segmentos ao URL. A landing page fica em `/en` e o login ficará em `/en/sign-in`.
+Os parênteses em `(marketing)` e `(auth)` são grupos de rotas do Next.js: organizam layouts diferentes sem acrescentar segmentos ao URL. A landing page fica em `/en` e o login em `/en/sign-in`.
 
 O `AGENTS.md` é criado pelo `next dev`. Para o desativar, define `agentRules: false` no `next.config.ts`.
 
@@ -110,7 +120,11 @@ O `AGENTS.md` é criado pelo `next dev`. Para o desativar, define `agentRules: f
 | Decisão | Motivo |
 | --- | --- |
 | Código da aplicação em `src/` | Separa o código dos ficheiros de configuração da raiz |
-| `src/proxy.ts` em vez de `middleware.ts` | No Next.js 16 a convenção `middleware` foi descontinuada e passou a chamar-se `proxy`. É aqui que vive o "middleware de i18n" e, a partir da Fase 2, a proteção de rotas do Clerk |
+| `src/proxy.ts` em vez de `middleware.ts` | No Next.js 16 a convenção `middleware` foi descontinuada e passou a chamar-se `proxy`. É aqui que correm, por esta ordem, a sessão do Clerk e o encaminhamento por idioma |
+| Proteção na página, não no proxy | O Clerk descontinuou a proteção por caminhos no proxy, porque pode ser contornada (as Server Actions, por exemplo, são chamadas por ID e não por caminho). Cada página privada chama `auth.protect()`; o proxy só antecipa o redirecionamento |
+| Sessão lida no browser no header de marketing | Mantém a landing 100% estática e servida da cache. Os links de sessão aparecem quando o Clerk carrega |
+| Traduções do Clerk passadas pelo servidor | Chegam com a primeira renderização. Carregadas a pedido, a interface do Clerk podia ficar em inglês. Custo: cerca de 20 KB comprimidos no HTML de cada página não inglesa |
+| Logout com carregamento completo | O Clerk termina a sessão com uma navegação no cliente, e o `cacheComponents` mantinha o HTML das páginas privadas no DOM, escondido. O `ReloadOnSignOut` em `auth-provider.tsx` recarrega a página quando a sessão acaba |
 | i18n com `next-intl` | Rotas por idioma, plurais e formatação de números e datas, com as chaves dos dicionários verificadas pelo TypeScript |
 | `cacheComponents` e `partialPrefetching` ativos | São a configuração por omissão do `create-next-app` 16.4 e passam a ser obrigatórios na próxima versão major. As páginas são pré-renderizadas e só o conteúdo dinâmico é pedido ao servidor |
 | A troca de idioma recarrega a página | O layout raiz depende de `[locale]`. Com `cacheComponents`, uma navegação no cliente manteria montada a árvore do idioma anterior, com um `ThemeProvider` próprio e desatualizado. A documentação do Next.js recomenda o mesmo para mudanças de estado global, como o logout |
@@ -148,7 +162,9 @@ pnpm install
 pnpm dev
 ```
 
-Abre `http://localhost:3000`. És redirecionado para `/en` ou `/pt` conforme o idioma do browser. A Fase 1 não precisa de nenhuma variável de ambiente.
+Abre `http://localhost:3000`. És redirecionado para `/en` ou `/pt` conforme o idioma do browser.
+
+Antes do primeiro arranque, copia `.env.example` para `.env.local` e preenche as chaves do Clerk (secção 5.4). Sem a `CLERK_SECRET_KEY`, todas as páginas respondem com erro 500.
 
 ### 5.2 Dark Mode
 
@@ -207,8 +223,9 @@ Acrescenta a chave a `src/i18n/dictionaries/en.json` e a todos os outros dicion�
 1. Em `src/i18n/routing.ts`, acrescenta `"es"` a `locales` e `es: "Español"` a `localeNames`.
 2. Copia `src/i18n/dictionaries/en.json` para `es.json` e traduz os valores.
 3. Em `src/i18n/request.ts`, acrescenta `es: () => import("./dictionaries/es.json")` a `dictionaries`.
+4. Em `src/i18n/clerk.ts`, acrescenta a tradução da interface do Clerk: `es: esES`, importada de `@clerk/localizations/es-ES`.
 
-O TypeScript assinala os passos 1 e 3 se ficarem incompletos.
+O TypeScript assinala os passos 1 e 3 se ficarem incompletos. Sem o passo 4, o login e o menu do utilizador aparecem em inglês nesse idioma.
 
 **Códigos de idioma e URLs**
 
@@ -225,9 +242,69 @@ Duas particularidades:
 - Em `pnpm dev` a resposta tem código 200; o 404 real só existe no build de produção, onde a página é pré-renderizada.
 - Em produção, quem abre diretamente um URL inexistente e depois navega pelo site gera dois erros `Minified React error #419` na consola. São avisos de recuperação do React e a página funciona normalmente. Se usares monitorização de erros, ignora essa mensagem.
 
-### 5.4 Clerk (autenticação) — ⏳ Fase 2
+### 5.4 Clerk (autenticação)
 
-Criação da aplicação, chaves, URLs de sign-in e sign-up por locale e proteção de rotas.
+**Configurar**
+
+1. Cria uma aplicação em [dashboard.clerk.com](https://dashboard.clerk.com) e escolhe os métodos de login (e-mail, nome de utilizador, Google, etc.).
+2. Copia `.env.example` para `.env.local` e preenche `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY` com os valores de **API keys**.
+3. Corre `pnpm dev` e abre `/en/sign-up` para criar a primeira conta.
+
+Não há mais variáveis a definir: os URLs de login, registo e redirecionamento estão no código e seguem o idioma. Os métodos de login mudam-se no dashboard do Clerk, sem tocar no código.
+
+**Onde está cada coisa**
+
+| Ficheiro | Papel |
+| --- | --- |
+| `src/proxy.ts` | Lê a sessão em cada pedido e redireciona visitantes sem sessão que pedem `/[locale]/dashboard/**` para o login no mesmo idioma |
+| `src/components/auth-provider.tsx` | `ClerkProvider` com os URLs por idioma, o tema shadcn e o recarregamento no logout |
+| `src/i18n/clerk.ts` | Traduções da interface do Clerk por idioma |
+| `src/app/[locale]/(auth)/` | Páginas de login e registo com os componentes `<SignIn>` e `<SignUp>` |
+| `src/app/[locale]/dashboard/` | Área privada: a página chama `auth.protect()` |
+| `src/components/header-auth.tsx` | Links de sessão no header de marketing |
+
+**Fluxos**
+
+- Um visitante sem sessão que pede uma página privada vai para o login e, depois de entrar, volta a essa página.
+- Quem entra ou se regista diretamente vai para `/[locale]/dashboard`.
+- Ao terminar a sessão, a página inicial do mesmo idioma é carregada de novo.
+
+**Proteger uma página nova**
+
+1. Cria-a dentro de `src/app/[locale]/dashboard/`.
+2. Começa o componente com `await auth.protect()`:
+
+```tsx
+import { auth } from "@clerk/nextjs/server";
+
+export default async function SettingsPage() {
+  await auth.protect();
+  // ...
+}
+```
+
+O `loading.tsx` do dashboard já cobre as páginas dentro dele. Para uma área privada fora de `/dashboard`, acrescenta-lhe um `loading.tsx` e inclui o caminho em `privatePath`, em `src/proxy.ts`.
+
+O `auth.protect()` é a barreira de segurança. O redirecionamento no proxy é só um atalho: sem ele, a página responde com código 200 e redireciona para o login já durante o carregamento, sem mostrar conteúdo privado.
+
+**Server Actions e Route Handlers**
+
+Não são protegidos pelo proxy. Cada um tem de verificar a sessão com `auth()` ou `auth.protect()` antes de ler ou alterar dados.
+
+**Ler o utilizador**
+
+- No servidor: `auth()` para o `userId`, `currentUser()` para o perfil completo. Dentro de `<Suspense>` ou numa página com `loading.tsx`, e nunca numa função com `use cache`.
+- No browser: `useAuth()` e `useUser()`, ou `<Show when="signed-in">` para mostrar conteúdo conforme a sessão.
+
+**Aparência e idioma**
+
+Os componentes do Clerk usam o tema `shadcn`, que lê as variáveis CSS de `globals.css`; seguem as cores do site e o Dark Mode sem configuração extra. As traduções vêm do pacote `@clerk/localizations`, que o Clerk marca como experimental e que pode ter textos por traduzir.
+
+**Notas**
+
+- As chaves `pk_test_` e `sk_test_` são de desenvolvimento: o Clerk mostra "Development mode" e um aviso na consola. As chaves de produção entram no deploy (secção 5.8).
+- Os links de sessão do header só aparecem depois de o Clerk carregar no browser, por isso surgem um instante depois do resto da página.
+- As páginas não inglesas levam cerca de 20 KB comprimidos a mais no HTML, por causa das traduções do Clerk.
 
 ### 5.5 Supabase (base de dados) — ⏳ Fase 3
 
@@ -249,7 +326,7 @@ Metadados por idioma, sitemap, robots e publicação em produção.
 
 ## 6. Variáveis de ambiente
 
-Lista provisória: a Fase 1 não usa nenhuma. Os nomes definitivos são confirmados na fase que implementa cada serviço e consolidados no `.env.example` na Fase 5.
+As variáveis do Clerk são definitivas e estão no `.env.example`. As restantes são provisórias: os nomes são confirmados na fase que implementa cada serviço e consolidados no `.env.example` na Fase 5.
 
 | Variável | Serviço | Exposta ao browser | Fase |
 | --- | --- | --- | --- |
@@ -289,3 +366,4 @@ Regra: tudo o que não começa por `NEXT_PUBLIC_` só pode ser lido em código d
 | 2026-11-11 | 0 | Criação do documento: stack, princípios, estrutura de pastas, decisões iniciais e esqueleto dos guias |
 | 2026-11-12 | 1 | Versões instaladas, estrutura real, decisões técnicas da Fase 1 e guias de instalação, Dark Mode e internacionalização |
 | 2026-11-12 | 1 | Revisão da Fase 1: idioma `pt-PT` com URL `/pt`, página 404 localizada, menu para ecrãs pequenos, botões dos planos e regras para trabalhar com `cacheComponents` |
+| 2026-11-12 | 2 | Autenticação com Clerk: guia de configuração, proteção de páginas, decisões sobre proxy, traduções e logout |

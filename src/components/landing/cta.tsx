@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 
 export function Cta() {
   const t = useTranslations("cta");
@@ -11,9 +12,9 @@ export function Cta() {
           {t("title")}
         </h2>
         <p className="text-pretty text-muted-foreground">{t("description")}</p>
-        <a href="#pricing" className={buttonVariants({ size: "lg" })}>
+        <Link href="/sign-up" className={buttonVariants({ size: "lg" })}>
           {t("button")}
-        </a>
+        </Link>
       </div>
     </section>
   );

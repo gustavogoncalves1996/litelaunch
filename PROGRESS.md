@@ -10,7 +10,7 @@ SaaS Boilerplate ultra-leve e modular: Next.js (App Router) · TypeScript strict
 | --- | --- | --- |
 | 0 | Inicialização do projeto e plano de trabalho | 🟢 Concluída |
 | 1 | Estrutura base, TypeScript, Dark Mode e i18n core | 🟢 Concluída |
-| 2 | Autenticação gerida e sincronização de estado (Clerk) | ⚪ Por iniciar |
+| 2 | Autenticação gerida e sincronização de estado (Clerk) | 🟢 Concluída |
 | 3 | Infraestrutura de dados ultra-leve (Supabase) | ⚪ Por iniciar |
 | 4 | Faturação segura e webhooks (Lemon Squeezy) | ⚪ Por iniciar |
 | 5 | SEO, performance, ficheiros ambientais e polimento | ⚪ Por iniciar |
@@ -79,34 +79,37 @@ Clerk + proteção de rotas. A sincronização com a base de dados é implementa
 
 ### 2.1 Integração do Clerk com `/[locale]`
 
-- [ ] Criar a aplicação no Clerk e definir as chaves em `.env.local`
-- [ ] `ClerkProvider` no layout `[locale]`, com a localização do Clerk a acompanhar o idioma ativo
-- [ ] Páginas `/[locale]/sign-in` e `/[locale]/sign-up` em `src/app/[locale]/(auth)/`
-- [ ] Redirecionamentos pós-login e pós-logout que preservam o locale
-- [ ] Header com estado de sessão (entrar / ir para o dashboard / menu do utilizador)
-- [ ] Ligar os CTAs "Começar" do hero e da secção final ao sign-up (os botões dos planos já apontam para lá)
+- [x] Criar a aplicação no Clerk e definir as chaves em `.env.local`
+- [x] `ClerkProvider` no layout `[locale]` (`src/components/auth-provider.tsx`), com as traduções do Clerk a acompanhar o idioma ativo
+- [x] Tema shadcn do Clerk, para os componentes seguirem as cores e o Dark Mode do site
+- [x] Páginas `/[locale]/sign-in` e `/[locale]/sign-up` em `src/app/[locale]/(auth)/`
+- [x] Redirecionamentos pós-login (dashboard) e pós-logout (página inicial) que preservam o locale
+- [x] Header com estado de sessão (entrar / começar / dashboard / menu do utilizador), também no menu para ecrãs pequenos
+- [x] Ligar os CTAs "Começar" do hero e da secção final ao sign-up (os botões dos planos já apontavam para lá)
+- [x] `.env.example` com as variáveis do Clerk
 
 ### 2.2 Compatibilidade com `cacheComponents`
 
-O layout raiz e o header são hoje totalmente estáticos. A sessão só existe no momento do pedido, por isso não pode entrar nesse shell.
-
-- [ ] Confirmar na documentação do Clerk como colocar o `ClerkProvider` com `cacheComponents` ativo, antes de o adicionar ao layout raiz
-- [ ] Toda a UI que depende da sessão fica atrás de `<Suspense>`, com um fallback do mesmo tamanho para o header não saltar
-- [ ] Ler a sessão (`auth()`) só em componentes dinâmicos, nunca dentro de uma função com `use cache`
-- [ ] Logout com navegação completa, para limpar o estado das rotas que o Next.js mantém em memória
-- [ ] Confirmar no build que `/en` e `/pt-PT` continuam pré-renderizadas como estáticas
+- [x] Confirmar na documentação do Clerk como colocar o `ClerkProvider`: dentro do `<body>`, sem `Suspense`
+- [x] Header de marketing a ler a sessão no browser, para a landing continuar estática
+- [x] Páginas de autenticação e dashboard a ler dados do pedido atrás de `<Suspense>` (`loading.tsx` no dashboard)
+- [x] Sessão lida (`auth()`) só em componentes dinâmicos, nunca dentro de uma função com `use cache`
+- [x] Logout com carregamento completo da página, para limpar as rotas privadas que o Next.js mantém em memória
+- [x] Confirmar no build que `/en` e `/pt-PT` continuam pré-renderizadas como estáticas
 
 ### 2.3 Proteção de rotas privadas
 
-- [ ] Compor o Clerk e o i18n num único `src/proxy.ts`
-- [ ] Proteger `/[locale]/dashboard/**` e redirecionar visitantes para o sign-in no idioma certo
-- [ ] Layout base do dashboard com dados do utilizador autenticado
-- [ ] Segunda verificação de sessão no servidor (o proxy não é a única barreira)
+- [x] Compor o Clerk e o i18n num único `src/proxy.ts`
+- [x] Proteção na própria página com `auth.protect()`, como o Clerk recomenda desde que descontinuou a proteção no proxy
+- [x] Redirecionamento antecipado no proxy para `/[locale]/dashboard/**`, que leva os visitantes ao sign-in no idioma certo
+- [x] Dashboard base com os dados do utilizador autenticado
+- [x] Confirmar que a página se protege sozinha, com o redirecionamento do proxy desligado
 
 ### 2.4 Fecho da fase
 
-- [ ] `lint`, `typecheck` e `build` sem erros
-- [ ] Atualizar `DOCUMENTATION.md` (configuração do Clerk passo a passo)
+- [x] `lint`, `typecheck` e `build` sem erros
+- [x] Validação no browser com um utilizador de teste: login, logout, proteção do dashboard, troca de idioma e de tema
+- [x] Atualizar `DOCUMENTATION.md` (configuração do Clerk passo a passo)
 
 ---
 
@@ -124,7 +127,7 @@ Supabase SDK + tabelas de utilizadores e subscrições + Server Actions. O Clerk
 
 ### 3.2 Sincronização de utilizadores
 
-- [ ] Server Action `syncUser`: upsert idempotente a partir da sessão do Clerk
+- [ ] Server Action `syncUser`: verifica a sessão com `auth()` e faz um upsert idempotente a partir dos dados do Clerk
 - [ ] Executar a sincronização na entrada do dashboard
 - [ ] Dashboard a ler o perfil e o estado da subscrição a partir da base de dados
 
@@ -177,7 +180,7 @@ Lemon Squeezy + rota de webhook com assinatura criptográfica + fluxo de checkou
 
 ### 5.1 Ficheiros ambientais
 
-- [ ] `.env.example` completo e comentado (preenchido a partir da Fase 2, fechado aqui)
+- [ ] `.env.example` completo e comentado (iniciado na Fase 2, fechado aqui)
 - [ ] Validação tipada das variáveis de ambiente no arranque, sem dependências extra
 
 ### 5.2 SEO internacional

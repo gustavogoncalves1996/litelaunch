@@ -7,7 +7,10 @@
     "navigation": "Main navigation",
     "menu": "Open menu",
     "features": "Features",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "dashboard": "Dashboard"
   },
   "theme": {
     "label": "Change theme",
@@ -94,5 +97,20 @@
     "title": "Page not found",
     "description": "The page you are looking for doesn't exist or has been moved.",
     "back": "Back to home"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "description": "This page is only visible to signed-in users.",
+    "loading": "Loading…",
+    "account": {
+      "title": "Account",
+      "email": "Email",
+      "memberSince": "Member since"
+    }
   }
 }

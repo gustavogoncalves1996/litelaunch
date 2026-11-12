@@ -7,7 +7,10 @@
     "navigation": "Navegação principal",
     "menu": "Abrir menu",
     "features": "Funcionalidades",
-    "pricing": "Preços"
+    "pricing": "Preços",
+    "signIn": "Entrar",
+    "getStarted": "Começar",
+    "dashboard": "Dashboard"
   },
   "theme": {
     "label": "Alterar tema",
@@ -94,5 +97,20 @@
     "title": "Página não encontrada",
     "description": "A página que procuras não existe ou foi movida.",
     "back": "Voltar ao início"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Criar conta"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Olá, {name}",
+    "description": "Esta página só é visível para utilizadores autenticados.",
+    "loading": "A carregar…",
+    "account": {
+      "title": "Conta",
+      "email": "E-mail",
+      "memberSince": "Membro desde"
+    }
   }
 }

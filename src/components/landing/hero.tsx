@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 
 export function Hero() {
   const t = useTranslations("hero");
@@ -16,9 +17,9 @@ export function Hero() {
         {t("description")}
       </p>
       <div className="flex flex-wrap justify-center gap-3">
-        <a href="#pricing" className={buttonVariants({ size: "lg" })}>
+        <Link href="/sign-up" className={buttonVariants({ size: "lg" })}>
           {t("primaryCta")}
-        </a>
+        </Link>
         <a
           href="#features"
           className={buttonVariants({ size: "lg", variant: "outline" })}
