@@ -1,28 +1,8 @@
 import { CheckIcon } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { PlanButton } from "@/components/landing/plan-button";
+import { currency, plans } from "@/lib/plans";
 import { cn } from "@/lib/utils";
-
-const plans = [
-  {
-    key: "free",
-    price: 0,
-    featured: false,
-    features: ["oneProject", "communitySupport"],
-  },
-  {
-    key: "pro",
-    price: 19,
-    featured: true,
-    features: [
-      "unlimitedProjects",
-      "prioritySupport",
-      "analytics",
-      "customDomain",
-    ],
-  },
-] as const;
 
 export function Pricing() {
   const t = useTranslations("pricing");
@@ -63,7 +43,7 @@ export function Pricing() {
                 <span className="text-4xl font-semibold tracking-tight">
                   {format.number(plan.price, {
                     style: "currency",
-                    currency: "EUR",
+                    currency,
                     maximumFractionDigits: 0,
                   })}
                 </span>
@@ -71,17 +51,9 @@ export function Pricing() {
                   {t("perMonth")}
                 </span>
               </p>
-              <Link
-                href="/sign-up"
-                className={cn(
-                  buttonVariants({
-                    variant: plan.featured ? "default" : "outline",
-                  }),
-                  "mt-6 w-full",
-                )}
-              >
+              <PlanButton paid={plan.price > 0} featured={plan.featured}>
                 {t(`plans.${plan.key}.cta`)}
-              </Link>
+              </PlanButton>
               <ul className="mt-6 space-y-2 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">

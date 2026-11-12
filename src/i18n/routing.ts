@@ -1,3 +1,4 @@
+import { hasLocale } from "next-intl";
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
@@ -11,6 +12,11 @@ export const routing = defineRouting({
 });
 
 export type Locale = (typeof routing.locales)[number];
+
+// For values that come from outside the app: Server Action arguments, database rows.
+export function toLocale(value: string): Locale {
+  return hasLocale(routing.locales, value) ? value : routing.defaultLocale;
+}
 
 export const localeNames: Record<Locale, string> = {
   en: "English",

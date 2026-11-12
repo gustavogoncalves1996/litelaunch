@@ -19,8 +19,9 @@ type Props = {
   footer: string;
 };
 
-// Receives its text already translated, so it has no dependency on the app.
-export function WelcomeEmail({
+// One heading, one paragraph and one button: the shape of every email the app
+// sends. It receives its text already translated, so it has no dependency on the app.
+export function NotificationEmail({
   lang,
   preview,
   heading,

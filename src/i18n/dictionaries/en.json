@@ -107,6 +107,11 @@
     "welcome": "Welcome, {name}",
     "description": "This page is only visible to signed-in users.",
     "loading": "Loading…",
+    "nav": {
+      "label": "Dashboard navigation",
+      "overview": "Overview",
+      "billing": "Billing"
+    },
     "account": {
       "title": "Account",
       "email": "Email",
@@ -114,7 +119,7 @@
     },
     "plan": {
       "title": "Plan",
-      "free": "Free",
+      "manage": "Manage billing",
       "status": {
         "on_trial": "Trial",
         "active": "Active",
@@ -124,6 +129,19 @@
         "cancelled": "Cancelled",
         "expired": "Expired"
       }
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Manage your plan and your payment details.",
+      "currentPlan": "Current plan",
+      "renewsOn": "Renews on {date}",
+      "endsOn": "Access until {date}",
+      "endedOn": "Ended on {date}",
+      "upgrade": "Upgrade to {plan}",
+      "upgradeDescription": "{price} per month. Cancel at any time.",
+      "manage": "Manage subscription",
+      "manageDescription": "Change your payment method, download invoices or cancel in the customer portal.",
+      "confirming": "Thank you! Your payment is being confirmed. This page updates by itself."
     }
   },
   "emails": {
@@ -134,6 +152,14 @@
       "body": "Your {app} account is ready. Open your dashboard to get started.",
       "cta": "Open dashboard",
       "footer": "You are receiving this email because you created a {app} account."
+    },
+    "subscription": {
+      "subject": "Your {app} {plan} plan is active",
+      "preview": "Thank you for subscribing to {app} {plan}.",
+      "heading": "Thank you, {name}",
+      "body": "Your {plan} plan is now active. You can change your payment method, download invoices or cancel at any time from the billing page.",
+      "cta": "Manage subscription",
+      "footer": "You are receiving this email because you subscribed to {app}."
     }
   }
 }

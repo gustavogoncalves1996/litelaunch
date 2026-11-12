@@ -107,6 +107,11 @@
     "welcome": "Olá, {name}",
     "description": "Esta página só é visível para utilizadores autenticados.",
     "loading": "A carregar…",
+    "nav": {
+      "label": "Navegação do dashboard",
+      "overview": "Resumo",
+      "billing": "Faturação"
+    },
     "account": {
       "title": "Conta",
       "email": "E-mail",
@@ -114,7 +119,7 @@
     },
     "plan": {
       "title": "Plano",
-      "free": "Gratuito",
+      "manage": "Gerir faturação",
       "status": {
         "on_trial": "Período de teste",
         "active": "Ativa",
@@ -124,6 +129,19 @@
         "cancelled": "Cancelada",
         "expired": "Expirada"
       }
+    },
+    "billing": {
+      "title": "Faturação",
+      "description": "Gere o teu plano e os teus dados de pagamento.",
+      "currentPlan": "Plano atual",
+      "renewsOn": "Renova a {date}",
+      "endsOn": "Acesso até {date}",
+      "endedOn": "Terminou a {date}",
+      "upgrade": "Passar para o {plan}",
+      "upgradeDescription": "{price} por mês. Cancela quando quiseres.",
+      "manage": "Gerir subscrição",
+      "manageDescription": "Altera o método de pagamento, descarrega faturas ou cancela no portal do cliente.",
+      "confirming": "Obrigado! O teu pagamento está a ser confirmado. Esta página atualiza-se sozinha."
     }
   },
   "emails": {
@@ -134,6 +152,14 @@
       "body": "A tua conta no {app} está pronta. Abre o dashboard para começar.",
       "cta": "Abrir o dashboard",
       "footer": "Recebeste este e-mail porque criaste uma conta no {app}."
+    },
+    "subscription": {
+      "subject": "O teu plano {plan} do {app} está ativo",
+      "preview": "Obrigado por subscreveres o {app} {plan}.",
+      "heading": "Obrigado, {name}",
+      "body": "O teu plano {plan} já está ativo. Podes alterar o método de pagamento, descarregar faturas ou cancelar em qualquer altura na página de faturação.",
+      "cta": "Gerir subscrição",
+      "footer": "Recebeste este e-mail porque subscreveste o {app}."
     }
   }
 }

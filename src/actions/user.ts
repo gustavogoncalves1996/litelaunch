@@ -1,11 +1,10 @@
 "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
-import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { WelcomeEmail } from "@/emails/welcome";
+import { NotificationEmail } from "@/emails/notification";
 import { getPathname } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
+import { toLocale, type Locale } from "@/i18n/routing";
 import { sendEmail } from "@/lib/resend";
 import { siteConfig } from "@/lib/site";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
@@ -16,9 +15,7 @@ import type { User } from "@/types/database";
 // refreshed with the latest profile from Clerk.
 export async function syncUser(requestedLocale: string): Promise<User> {
   // A Server Action is a public endpoint: never trust its arguments.
-  const locale = hasLocale(routing.locales, requestedLocale)
-    ? requestedLocale
-    : routing.defaultLocale;
+  const locale = toLocale(requestedLocale);
 
   const clerkUser = await currentUser();
   if (!clerkUser) throw new Error("syncUser: not signed in.");
@@ -70,7 +67,7 @@ async function sendWelcomeEmail(user: User, locale: Locale) {
     to: user.email,
     subject: t("subject", { app }),
     idempotencyKey: `welcome/${user.id}`,
-    template: WelcomeEmail({
+    template: NotificationEmail({
       lang: locale,
       preview: t("preview", { app }),
       heading: t("heading", { name: user.name ?? user.email }),

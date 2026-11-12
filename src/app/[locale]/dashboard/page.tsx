@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { syncUser } from "@/actions/user";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { Link } from "@/i18n/navigation";
+import { getCurrentSubscription, hasActivePlan } from "@/lib/subscription";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboard");
@@ -13,20 +14,14 @@ export default async function DashboardPage() {
   // The security boundary for this page. The redirect in proxy.ts is only a shortcut.
   await auth.protect();
 
-  const [user, t, format] = await Promise.all([
+  const [user, subscription, t, tPlans, format] = await Promise.all([
     syncUser(await getLocale()),
+    // Read as the signed-in user: Row Level Security returns only their rows.
+    getCurrentSubscription(),
     getTranslations("dashboard"),
+    getTranslations("pricing.plans"),
     getFormatter(),
   ]);
-
-  // Read as the signed-in user: Row Level Security returns only their rows.
-  const { data: subscription, error } = await createServerSupabaseClient()
-    .from("subscriptions")
-    .select("status, variant_name")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw new Error(`Dashboard: ${error.message}`);
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-12">
@@ -59,13 +54,19 @@ export default async function DashboardPage() {
         <div className="rounded-xl border bg-card p-6">
           <h2 className="font-medium">{t("plan.title")}</h2>
           <p className="mt-4 text-2xl font-semibold tracking-tight">
-            {subscription?.variant_name ?? t("plan.free")}
+            {tPlans(hasActivePlan(subscription) ? "pro.name" : "free.name")}
           </p>
           {subscription && (
             <p className="mt-1 text-sm text-muted-foreground">
               {t(`plan.status.${subscription.status}`)}
             </p>
           )}
+          <Link
+            href="/dashboard/billing"
+            className="mt-4 inline-block text-sm font-medium underline-offset-4 hover:underline"
+          >
+            {t("plan.manage")}
+          </Link>
         </div>
       </div>
     </section>
